@@ -318,7 +318,7 @@ export const zhCN = {
   "create.advanced.proxy.loadFailed": "无法读取下载代理状态",
   "create.advanced.proxy.openSettings": "前往设置",
   "create.advanced.hint": "高级设置会作为单任务 Aria2 选项生效；保存路径仍以飞牛授权目录校验为准。",
-  "create.advanced.invalid": "请检查高级设置：连接数需为 1–64，限速不能小于 0",
+  "create.advanced.invalid": "请检查高级设置：连接数需为 1–256，限速不能小于 0",
   "create.submit": "开始下载",
 
   "settings.title": "设置",

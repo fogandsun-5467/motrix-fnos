@@ -18,7 +18,7 @@ fn connections_use_one_limit_and_reject_ambiguous_or_invalid_input() {
     }
     for value in [
         json!(0),
-        json!(65),
+        json!(257),
         json!(-1),
         json!(1.5),
         json!(true),

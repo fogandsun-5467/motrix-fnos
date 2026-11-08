@@ -320,7 +320,7 @@ export const enUS: Record<TranslationKey, string> = {
   "create.advanced.proxy.loadFailed": "Unable to load download proxy status",
   "create.advanced.proxy.openSettings": "Open Settings",
   "create.advanced.hint": "Advanced settings are applied as per-task Aria2 options. Save directory is still checked against fnOS authorized folders.",
-  "create.advanced.invalid": "Check advanced settings: connections must be 1–64 and speed limit cannot be below 0",
+  "create.advanced.invalid": "Check advanced settings: connections must be 1–256 and speed limit cannot be below 0",
   "create.submit": "Start Download",
 
   "settings.title": "Settings",

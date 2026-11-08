@@ -357,7 +357,7 @@ fn invalid_stored_connection_limit_defaults_but_api_input_is_rejected() {
     for value in [
         serde_json::json!(-1),
         serde_json::json!("bad"),
-        serde_json::json!(65),
+        serde_json::json!(257),
     ] {
         let mut stored = serde_json::json!({"httpMaxConnections": value});
         migrate_connection_settings(&mut stored).expect("stored config should migrate");
@@ -367,7 +367,7 @@ fn invalid_stored_connection_limit_defaults_but_api_input_is_rejected() {
     for value in [
         serde_json::json!(-1),
         serde_json::json!("bad"),
-        serde_json::json!(65),
+        serde_json::json!(257),
     ] {
         let error = parse_app_config_request(serde_json::json!({
             "defaultDownloadDir": "/downloads",

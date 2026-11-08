@@ -3,7 +3,7 @@ import type { AppLanguage } from "../i18n";
 export const DEFAULT_MAX_CONCURRENT_DOWNLOADS = 5;
 export const MAX_CONCURRENT_DOWNLOADS_LIMIT = 128;
 export const DEFAULT_HTTP_MAX_CONNECTIONS = 1;
-export const HTTP_MAX_CONNECTIONS_LIMIT = 64;
+export const HTTP_MAX_CONNECTIONS_LIMIT = 256;
 export const DEFAULT_CONNECT_TIMEOUT = 60;
 export const MAX_CONNECT_TIMEOUT_LIMIT = 300;
 export const DEFAULT_MAX_TRIES = 5;

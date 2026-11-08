@@ -1,3 +1,4 @@
+use crate::settings::service::HTTP_MAX_CONNECTIONS_LIMIT;
 use crate::tasks::CreateTaskAdvancedOptions;
 use serde_json::{Map, Value};
 
@@ -31,8 +32,10 @@ pub fn sanitize_create_task_options(
     let mut options = sanitize_aria2_options(aria2_options)?;
 
     if let Some(connections) = advanced_options.connections {
-        if !(1..=64).contains(&connections) {
-            return Err("task_connections_invalid：连接数必须在 1 到 64 之间".to_string());
+        if !(1..=HTTP_MAX_CONNECTIONS_LIMIT).contains(&connections) {
+            return Err(format!(
+                "task_connections_invalid：连接数必须在 1 到 {HTTP_MAX_CONNECTIONS_LIMIT} 之间"
+            ));
         }
         let value = Value::String(connections.to_string());
         options.insert("stream-max-connections".to_string(), value);
@@ -104,8 +107,12 @@ pub fn sanitize_aria2_options(options: &Map<String, Value>) -> Result<Map<String
             let value = value
                 .as_u64()
                 .or_else(|| value.as_str()?.trim().parse::<u64>().ok())
-                .filter(|value| (1..=64).contains(value))
-                .ok_or("task_connections_invalid：连接数必须是 1 到 64 的整数")?;
+                .filter(|value| (1..=u64::from(HTTP_MAX_CONNECTIONS_LIMIT)).contains(value))
+                .ok_or_else(|| {
+                    format!(
+                        "task_connections_invalid：连接数必须是 1 到 {HTTP_MAX_CONNECTIONS_LIMIT} 的整数"
+                    )
+                })?;
             connections = Some(connections.map_or(value, |previous: u64| previous.min(value)));
         }
     }

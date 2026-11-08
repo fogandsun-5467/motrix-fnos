@@ -372,7 +372,7 @@ JWT 鉴权失败响应包含稳定的 `code` 和同值的 `reason`，用于排�
 - `sourceType` 可选值为 `url` / `magnet`；种子文件通过 `/api/tasks/torrent` 上传，不在 JSON 请求中传 `torrent`。省略时兼容旧请求并按 `url` 处理。
 - `startMode` 可选值为 `now` / `paused`，省略时按 `now` 处理。
 - `category` 是 Motrix 任务标签，默认 `默认`；它不改变保存目录，也不影响侧栏状态分类。
-- `advancedOptions.connections` 为 `1..=64` 的整数，原生引擎映射 `stream-max-connections`；`advancedOptions.downloadLimitKb` 映射单任务下载限速。
+- `advancedOptions.connections` 为 `1..=256` 的整数，原生引擎映射 `stream-max-connections`；`advancedOptions.downloadLimitKb` 映射单任务下载限速。
 - HTTP 的 `advancedOptions.useProxy` 是可选布尔值，缺失按 `false`；BT 禁止任务级代理字段，即使为 `false` / `null` 也返回 `400 bt_task_proxy_unsupported`。HTTP 请求中该值为 `true` 时绑定当前应用代理配置；配置不存在时返回 `400 proxy_not_configured`，并且不创建任务、目录或 Aria2 GID。
 - 旧 `advancedOptions.proxy` 继续兼容：未同时提供 `useProxy` 时，非空原始值作为该任务的私密兼容覆盖并映射 `all-proxy`。同时提供 `useProxy` 与非空 `advancedOptions.proxy` 时返回 `400 proxy_conflict`。
 - `saveDir` 必须是 `/api/storage/accessible-paths` 返回的授权目录本身或其子目录；为空或未授权路径会返回 `400 Bad Request`。缺失子目录会在 Aria2 创建任务前由服务端创建。
@@ -549,7 +549,7 @@ JWT 鉴权失败响应包含稳定的 `code` 和同值的 `reason`，用于排�
 - `GET /api/settings` 在没有已保存配置时，会从 `/api/storage/accessible-paths` 对应授权目录中选择默认下载目录：优先选择包含 `/data` 或以 `data` 结尾的目录，其次选择第一个授权目录；授权目录为空时才回退到 server 应用数据目录。
 - `PUT /api/settings` 的 `defaultDownloadDir` 必须来自已授权目录；授权目录为空时只允许使用 server 应用数据目录。未授权目录返回 `400 Bad Request`，错误码为 `settings_save_failed`。
 - `maxConcurrentDownloads` 默认值为 `5`，服务端规范化范围为 `1..=128`；`0` 会规范化为 `1`，超过 `128` 会规范化为 `128`。该限制由服务端执行，前端范围只是输入提示。
-- 下载调优统一为 `httpMaxConnections`（默认 `1`，整数 `1..=64`）、`connectTimeout`（默认 `60` 秒，规范化为 `1..=300`）和 `maxTries`（默认 `5`，规范化为 `1..=10`）。非法 HTTP 连接上限返回 `400 settings_connections_invalid`。
+- 下载调优统一为 `httpMaxConnections`（默认 `1`，整数 `1..=256`）、`connectTimeout`（默认 `60` 秒，规范化为 `1..=300`）和 `maxTries`（默认 `5`，规范化为 `1..=10`）。非法 HTTP 连接上限返回 `400 settings_connections_invalid`。
 - 调优字段保存后会与限速和并发一起通过 `aria2.changeGlobalOption` 应用；Aria2 未运行时不会因设置操作启动，并会在下一次受控启动、session 恢复前应用已保存的规范化配置。旧客户端省略这些新增字段时按上述默认值保存。
 - 旧设置 `split` / `maxConnectionPerServer` 归并到 `httpMaxConnections`，按各自默认值与范围规范化后取较小值；响应只返回新字段。新旧字段混用返回 `400 settings_option_conflict`，提交已废弃的 `minSplitSize` 返回 `400 settings_option_unsupported`。
 - `PUT /api/settings` 保存成功后不会因为 Aria2 未运行或即时应用失败而回滚配置；响应中的可选 `runtimeApply` 为 `applied`（已即时应用）、`deferred`（Aria2 未就绪或生命周期正在切换，将在下次受控启动时生效）或 `failed`（已尝试即时应用但 Aria2 拒绝/调用失败）。旧客户端可以忽略该字段。
@@ -1029,7 +1029,7 @@ JWT 鉴权失败响应包含稳定的 `code` 和同值的 `reason`，用于排�
 - `out` 会映射为 Motrix 任务文件名。
 - 当 URL 为 `magnet:?` 时，`dir` 表示授权父目录；后端在私有目录解析 metadata 并保持同一 GID，用户在 Web UI 确认文件后才设置任务专属子目录并开始实际下载。BT 任务级代理选项返回 `-32602`，须使用设置页总开关。
 - 远程入口只支持 HTTP / HTTPS URL 和 `magnet:?`，不支持上传种子文件；种子文件使用 Web UI 或 `/api/tasks/torrent`。
-- HTTP 连接统一用 `stream-max-connections`（`1..=64`），兼容旧 `split` / `max-connection-per-server` 并取较小值，新旧混用拒绝。`min-split-size`、`bt-save-metadata`、`dht-file-path` 等废弃选项及 `rpc-*`、`state-dir`、session、日志等服务管理选项明确返回 `-32602`；其他非白名单选项按既有规则忽略。
+- HTTP 连接统一用 `stream-max-connections`（`1..=256`），兼容旧 `split` / `max-connection-per-server` 并取较小值，新旧混用拒绝。`min-split-size`、`bt-save-metadata`、`dht-file-path` 等废弃选项及 `rpc-*`、`state-dir`、session、日志等服务管理选项明确返回 `-32602`；其他非白名单选项按既有规则忽略。
 - 普通 HTTP/HTTPS URL 始终下载原文件，不自动进入 HLS/DASH 媒体处理；只允许 `media=file`。
 - 不支持的方法返回 `-32601 Method not found`；参数错误返回 `-32602 Invalid params`；服务侧错误返回 `-32000`；token 错误返回 `-32001`，token 未配置返回 `-32002`；Aria2 正在停止时返回 `-32004`；兼容门禁禁止下载时返回 `-32005`。
 - 不要在公开网页、前端仓库或日志中记录 `jsonRpcToken`；公网反向代理只能指向回环 RPC 专用监听器的 `/jsonrpc`，根路径、`/api/*`、SSE 和静态资源在该监听器上必须保持 404。

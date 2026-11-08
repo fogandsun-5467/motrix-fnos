@@ -16,7 +16,7 @@ const ENGLISH_LANGUAGE: &str = "en-US";
 pub const DEFAULT_MAX_CONCURRENT_DOWNLOADS: u32 = 5;
 pub const MAX_CONCURRENT_DOWNLOADS_LIMIT: u32 = 128;
 pub const DEFAULT_HTTP_MAX_CONNECTIONS: u32 = 1;
-pub const HTTP_MAX_CONNECTIONS_LIMIT: u32 = 64;
+pub const HTTP_MAX_CONNECTIONS_LIMIT: u32 = 256;
 pub const DEFAULT_CONNECT_TIMEOUT: u32 = 60;
 pub const MAX_CONNECT_TIMEOUT_LIMIT: u32 = 300;
 pub const DEFAULT_MAX_TRIES: u32 = 5;
@@ -159,7 +159,9 @@ pub fn normalize_app_config(
     default_download_dir: &str,
 ) -> Result<AppConfig, String> {
     if !(1..=HTTP_MAX_CONNECTIONS_LIMIT).contains(&config.http_max_connections) {
-        return Err("settings_connections_invalid：HTTP 连接上限必须在 1 到 64 之间".to_string());
+        return Err(format!(
+            "settings_connections_invalid：HTTP 连接上限必须在 1 到 {HTTP_MAX_CONNECTIONS_LIMIT} 之间"
+        ));
     }
     let default_download_dir = if config.default_download_dir.trim().is_empty() {
         default_download_dir.trim().to_string()
@@ -259,11 +261,11 @@ pub fn parse_app_config_request(mut value: serde_json::Value) -> Result<AppConfi
     if let Some(limit) = object.get("httpMaxConnections") {
         if !limit
             .as_u64()
-            .is_some_and(|limit| (1..=64).contains(&limit))
+            .is_some_and(|limit| (1..=u64::from(HTTP_MAX_CONNECTIONS_LIMIT)).contains(&limit))
         {
-            return Err(
-                "settings_connections_invalid：HTTP 连接上限必须是 1 到 64 的整数".to_string(),
-            );
+            return Err(format!(
+                "settings_connections_invalid：HTTP 连接上限必须是 1 到 {HTTP_MAX_CONNECTIONS_LIMIT} 的整数"
+            ));
         }
     }
     migrate_connection_settings(&mut value)?;

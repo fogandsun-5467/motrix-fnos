@@ -25,6 +25,7 @@ import AppIcon from "../../../components/AppIcon.vue";
 import { useI18n } from "../../../i18n";
 import { useMobileLayout } from "../../../app/composables/useMobileLayout";
 import { useTaskCreateForm } from "../composables/useTaskCreateForm";
+import { HTTP_MAX_CONNECTIONS_LIMIT } from "../../../types/settings";
 
 const props = defineProps<{
   show: boolean;
@@ -219,7 +220,7 @@ const handleTorrentUploadRemove: UploadOnRemove = () => {
                       v-model:value="form.connections"
                       class="full-width"
                       :min="1"
-                      :max="64"
+                      :max="HTTP_MAX_CONNECTIONS_LIMIT"
                       :precision="0"
                       :placeholder="t('create.advanced.connections.placeholder')"
                     />

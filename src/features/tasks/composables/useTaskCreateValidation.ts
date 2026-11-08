@@ -1,5 +1,6 @@
 import { computed, type Ref } from "vue";
 import { useI18n } from "../../../i18n";
+import { HTTP_MAX_CONNECTIONS_LIMIT } from "../../../types/settings";
 import type { TaskCreateFormState, TaskCreateInputType } from "./taskCreateFormModel";
 
 export function useTaskCreateValidation(form: TaskCreateFormState, activeInputType: Ref<TaskCreateInputType>) {
@@ -29,7 +30,8 @@ export function useTaskCreateValidation(form: TaskCreateFormState, activeInputTy
   const magnetValidationStatus = computed(() => (form.magnet && !isMagnetValid.value ? "error" : undefined));
   const hasValidAdvancedOptions = computed(
     () =>
-      (form.connections === null || (form.connections >= 1 && form.connections <= 64)) &&
+      (form.connections === null ||
+        (form.connections >= 1 && form.connections <= HTTP_MAX_CONNECTIONS_LIMIT)) &&
       form.downloadLimitKb >= 0,
   );
   const hasValidSourceInput = computed(() => {

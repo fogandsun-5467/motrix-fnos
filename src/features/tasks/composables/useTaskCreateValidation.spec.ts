@@ -37,10 +37,10 @@ describe("useTaskCreateValidation", () => {
     form.urls = "https://example.com/file.iso";
     form.saveDir = "/downloads";
     form.connections = 0;
-    expect(validation.validationError()).toBe("请检查高级设置：连接数需为 1–64，限速不能小于 0");
-    form.connections = 64;
+    expect(validation.validationError()).toBe("请检查高级设置：连接数需为 1–256，限速不能小于 0");
+    form.connections = 256;
     form.downloadLimitKb = -1;
-    expect(validation.validationError()).toBe("请检查高级设置：连接数需为 1–64，限速不能小于 0");
+    expect(validation.validationError()).toBe("请检查高级设置：连接数需为 1–256，限速不能小于 0");
     form.downloadLimitKb = 0;
     expect(validation.validationError()).toBeNull();
   });
